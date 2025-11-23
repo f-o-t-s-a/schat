@@ -1,6 +1,7 @@
 package com.example.schatapi.security;
 
 import com.example.schatapi.service.CustomUserDetailsService;
+import com.example.schatapi.service.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    @Autowired
+    private TokenBlacklistService tokenBlacklistService;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
     throws ServletException, IOException {
@@ -35,14 +39,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
+
+	    // Checking if token is blacklisted..
+	    if(tokenBlacklistService.isBlacklisted(jwt)) {
+		logger.warn("Token is blacklisted..");
+		chain.doFilter(request, response);
+		return;
+	    }
+
             try {
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-                logger.error("JWT Tokenextraction failed :.." + e.getMessage());
+                logger.error("JWT Token extraction failed :.." + e.getMessage());
             }
         }
 
-        if(username != null&& SecurityContextHolder.getContext().getAuthentication() == null) {
+        if(username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
             if(jwtUtil.validateToken(jwt, userDetails)) {

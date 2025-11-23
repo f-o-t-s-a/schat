@@ -34,10 +34,18 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
     		.csrf(csrf -> csrf
-			.ignoringRequestMatchers("/api/**", "/ws/**") // Disablind CSRF for WebSocket and API..
+			.ignoringRequestMatchers("/api/**", "/ws/**") // Disabling CSRF for WebSocket and API..
 		)
     		.authorizeHttpRequests(auth -> auth
-        		.requestMatchers("/api/users/register", "/api/test", "/api/users/login", "/ws/**").permitAll()
+        		.requestMatchers(
+				"/api/test",
+				"/api/users/register",
+				"/api/users/login",
+				"/ws/**"
+			).permitAll()
+			.requestMatchers(
+				"/api/auth/logout"
+			).authenticated() // Require Authentication ..
         		.anyRequest().authenticated()
     		)
             .sessionManagement(session -> session
