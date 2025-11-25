@@ -1,7 +1,7 @@
-package com.example.schatapi.config;
+package com.schat.schatapi.config;
 
-import com.example.schatapi.security.JwtAuthenticationFilter;
-import com.example.schatapi.service.CustomUserDetailsService;
+import com.schat.schatapi.security.JwtAuthenticationFilter;
+import com.schat.schatapi.service.CustomUserDetailsService;
 
 import java.beans.BeanProperty;
 

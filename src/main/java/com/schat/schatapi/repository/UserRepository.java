@@ -1,6 +1,6 @@
-package com.example.schatapi.repository;
+package com.schat.schatapi.repository;
 
-import com.example.schatapi.model.User;;
+import com.schat.schatapi.model.User;;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

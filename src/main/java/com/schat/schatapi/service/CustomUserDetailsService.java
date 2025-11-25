@@ -1,7 +1,7 @@
-package com.example.schatapi.service;
+package com.schat.schatapi.service;
 
-import com.example.schatapi.model.User;
-import com.example.schatapi.repository.UserRepository;
+import com.schat.schatapi.model.User;
+import com.schat.schatapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

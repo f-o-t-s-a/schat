@@ -1,4 +1,4 @@
-package com.example.schatapi.controller;
+package com.schat.schatapi.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;

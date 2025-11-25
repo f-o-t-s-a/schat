@@ -1,4 +1,4 @@
-package com.example.schatapi.service;
+package com.schat.schatapi.service;
 
 import org.springframework.stereotype.Service;
 import java.util.HashSet;

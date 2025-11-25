@@ -1,10 +1,10 @@
-package com.example.schatapi.controller;
+package com.schat.schatapi.controller;
 
-import com.example.schatapi.dto.AuthResponse;
-import com.example.schatapi.dto.LoginRequest;
-import com.example.schatapi.model.User;
-import com.example.schatapi.repository.UserRepository;
-import com.example.schatapi.security.JwtUtil;
+import com.schat.schatapi.dto.AuthResponse;
+import com.schat.schatapi.dto.LoginRequest;
+import com.schat.schatapi.model.User;
+import com.schat.schatapi.repository.UserRepository;
+import com.schat.schatapi.security.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;

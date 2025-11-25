@@ -1,4 +1,4 @@
-package com.example.schatapi;
+package com.schat.schatapi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

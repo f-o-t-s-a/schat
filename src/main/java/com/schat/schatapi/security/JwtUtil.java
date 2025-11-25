@@ -1,4 +1,4 @@
-package com.example.schatapi.security;
+package com.schat.schatapi.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

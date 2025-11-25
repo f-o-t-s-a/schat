@@ -1,4 +1,4 @@
-package com.example.schatapi.model;
+package com.schat.schatapi.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

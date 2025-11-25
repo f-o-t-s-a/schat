@@ -1,7 +1,7 @@
-package com.example.schatapi.controller;
+package com.schat.schatapi.controller;
 
-import com.example.schatapi.model.Message;
-import com.example.schatapi.repository.MessageRepository;
+import com.schat.schatapi.model.Message;
+import com.schat.schatapi.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.messaging.handler.annotation.MessageMapping;

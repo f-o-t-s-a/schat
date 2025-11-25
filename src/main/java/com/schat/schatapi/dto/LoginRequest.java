@@ -1,4 +1,4 @@
-package com.example.schatapi.dto;
+package com.schat.schatapi.dto;
 
 import lombok.Data;
 

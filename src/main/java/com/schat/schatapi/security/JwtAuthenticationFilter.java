@@ -1,7 +1,7 @@
-package com.example.schatapi.security;
+package com.schat.schatapi.security;
 
-import com.example.schatapi.service.CustomUserDetailsService;
-import com.example.schatapi.service.TokenBlacklistService;
+import com.schat.schatapi.service.CustomUserDetailsService;
+import com.schat.schatapi.service.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
