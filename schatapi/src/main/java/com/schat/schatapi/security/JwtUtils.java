@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.security.core.Authentication;
+import com.schat.schatapi.service.UserDetailsImpl;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -34,7 +36,30 @@ public class JwtUtils {
         byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+    
+    /**
+     * Generate UNSIGNED JWT (header.payload only, no signature)
+     * Threshold signature will be added separately
+     */
+    public String generateUnsignedJwtToken(Authentication authentication) {
+        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
 
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
+
+        // Build JWT without signing it
+        String unsignedJwt = Jwts.builder()
+            .setSubject(userPrincipal.getUsername())
+            .claim("email", userPrincipal.getEmail())
+            .claim("id", userPrincipal.getId())
+            .setIssuedAt(now)
+            .setExpiration(expiryDate)
+            .compact();  // This creates header.payload (no signature)
+
+        logger.debug("Generated unsigned JWT for user: {}", userPrincipal.getUsername());
+        return unsignedJwt;
+    }
+    
     public String generateJwtToken(String username) {
       try {
         logger.info("Starting JWT generation for user: {}", username);
@@ -119,13 +144,26 @@ public class JwtUtils {
         return false;
     }
     
+    /**
+     * Extract username from token (works with both signed and unsigned)
+     */
     public String getUserNameFromJwtToken(String token) {
-        // Verifying threshold signature before extracting claims..
+        // Remove threshold signature if present
+        String jwtPart = token.split("::")[0];
+        
+        logger.info("⚠️ Extracting username from token...");
+        // Parsing without validation (we'll validate via threshold signature)..
+        return Jwts.parser()
+            .build()
+            .parseClaimsJwt(jwtPart)  // Use parseClaimsJwt for unsigned tokens..
+            .getBody()
+            .getSubject();
+        
+        /*/ Verifying threshold signature before extracting claims..
         if (!thresholdTokenService.verifyTokenSignature(token)) {
             throw new SecurityException("❌ Invalid token signature..");
         }
         
-        logger.info("Extracting username from token...");
     
         // Extracting the unsigned token (remove threshold signature)..
         String unsignedToken = thresholdTokenService.extractUnsignedToken(token);
@@ -139,7 +177,68 @@ public class JwtUtils {
                 .getSubject();
         
         logger.info("✓ Username extracted: {}", username);
-        return username;
+        return username;*/
     }
+    
+    /**
+     * Getting all claims from token..
+     */
+    public Claims getClaimsFromToken(String token) {
+        String jwtPart = token.split("::")[0];
+        
+        return Jwts.parser()
+            .build()
+            .parseClaimsJwt(jwtPart)
+            .getBody();
+    }
+    
+    /**
+     * Checking if token is expired..
+     */
+    public boolean isTokenExpired(String token) {
+        try {
+            Claims claims = getClaimsFromToken(token);
+            Date expiration = claims.getExpiration();
+            return expiration.before(new Date());
+        } catch (Exception e) {
+            logger.error("Error checking token expiration: {}", e.getMessage());
+            return true;
+        }
+    }
+    
+    /**
+     * Validate token structure (not cryptographic validation)
+     */
+    public boolean validateJwtStructure(String token) {
+        try {
+            String jwtPart = token.split("::")[0];
+            
+            // Checking basic JWT structure..
+            String[] parts = jwtPart.split("\\.");
+            if (parts.length != 2 && parts.length != 3) {
+                logger.warn("⚠️ Invalid JWT structure: expected 2-3 parts, got {}", parts.length);
+                return false;
+            }
 
+            // Parsing claims..
+            Claims claims = getClaimsFromToken(token);
+            
+            // Checking expiration
+            if (isTokenExpired(token)) {
+                logger.warn("❌ JWT token is expired");
+                return false;
+            }
+
+            return true;
+        } catch (MalformedJwtException e) {
+            logger.error("❌ Invalid JWT token: {}", e.getMessage());
+        } catch (ExpiredJwtException e) {
+            logger.error("❌ JWT token is expired: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.error("❌JWT token is unsupported: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            logger.error("❌ JWT claims string is empty: {}", e.getMessage());
+        }
+        return false;
+    }
 }

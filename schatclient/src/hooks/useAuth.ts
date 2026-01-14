@@ -21,17 +21,36 @@ export const useAuth = () => {
     try {
       setLoading(true);
       setError(null);
+      
+      console.log('🔐 Attempting login with:', { username: credentials.username });
+      
       const response = await authApi.login(credentials);
+      
+      console.log('✅ Login successful, response:', response);
+      
       setUser({
         id: response.id,
         username: response.username,
         email: response.email,
         roles: response.roles,
       });
+      
       router.push('/chat');
       return response;
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Login failed';
+      console.error('❌ Login error details:', {
+        message: err.message,
+        response: err.response,
+        status: err.response?.status,
+        data: err.response?.data,
+        config: {
+          url: err.config?.url,
+          method: err.config?.method,
+          baseURL: err.config?.baseURL,
+        }
+      });
+      
+      const errorMessage = err.response?.data?.message || err.message || 'Login failed';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {
@@ -43,11 +62,24 @@ export const useAuth = () => {
     try {
       setLoading(true);
       setError(null);
+      
+      console.log('📝 Attempting registration:', { username: userData.username, email: userData.email });
+      
       const response = await authApi.register(userData);
+      
+      console.log('✅ Registration successful:', response);
+      
       router.push('/login');
       return response;
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Registration failed';
+      console.error('❌ Registration error:', {
+        message: err.message,
+        response: err.response,
+        status: err.response?.status,
+        data: err.response?.data,
+      });
+      
+      const errorMessage = err.response?.data?.message || err.message || 'Registration failed';
       setError(errorMessage);
       throw new Error(errorMessage);
     } finally {

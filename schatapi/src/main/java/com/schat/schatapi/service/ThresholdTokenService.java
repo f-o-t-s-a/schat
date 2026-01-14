@@ -193,7 +193,7 @@ public class ThresholdTokenService {
         try {
             String[] parts = signedToken.split("::");
             if (parts.length != 2) {
-                logger.warn("Invalid token format: expected 2 parts, got {}", parts.length);
+                logger.warn("⚠️ Invalid token format: expected 2 parts, got {}..", parts.length);
                 return false;
             }
 
@@ -204,11 +204,11 @@ public class ThresholdTokenService {
             boolean valid = SDithThresholdScheme.verifySignature(
                 token.getBytes(), signature, publicKey);
             
-            logger.debug("Token signature verification: {}", valid ? "VALID" : "INVALID");
+            logger.debug("❌ Token signature verification: {}..", valid ? "VALID" : "INVALID");
             return valid;
             
         } catch (Exception e) {
-            logger.error("Token verification failed: {}", e.getMessage(), e);
+            logger.error("❌ Token verification failed: {}..", e.getMessage(), e);
             return false;
         }
     }

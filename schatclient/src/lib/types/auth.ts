@@ -11,13 +11,15 @@ export interface SignupRequest {
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  tokenType: string;
   id: number;
   username: string;
   email: string;
   roles: string[];
+  refreshToken: string;
+  token?: string;
+  accessToken?: string;    // Kept for compatibility
+  type: string;            // "Bearer"
+  tokenType?: string;      // Kept for compatibility..
 }
 
 export interface JwtResponse {

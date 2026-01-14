@@ -32,7 +32,7 @@ export default function LoginForm() {
       <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-md">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to SChat
+            Sign in to SChat..
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -44,7 +44,7 @@ export default function LoginForm() {
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="username" className="sr-only">
-                Username
+                Username..
               </label>
               <input
                 id="username"
@@ -59,7 +59,7 @@ export default function LoginForm() {
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
-                Password
+                Password..
               </label>
               <input
                 id="password"
@@ -86,7 +86,7 @@ export default function LoginForm() {
 
           <div className="text-center">
             <Link href="/register" className="text-indigo-600 hover:text-indigo-500">
-              Don't have an account? Sign up
+              Don't have an account??.. Sign up..
             </Link>
           </div>
         </form>

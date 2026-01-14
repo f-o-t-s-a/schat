@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,38 +23,56 @@ import java.util.stream.Collectors;
 @Service
 public class AuthService {
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
+    
+    @Autowired
+    private ThresholdTokenService thresholdTokenService;
+    
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
-    UserRepository userRepository;
+    private PasswordEncoder encoder;
 
     @Autowired
-    PasswordEncoder encoder;
+    private JwtUtils jwtUtils;
 
     @Autowired
-    JwtUtils jwtUtils;
-
-    @Autowired
-    RefreshTokenService refreshTokenService;
+    private RefreshTokenService refreshTokenService;
 
     public JwtResponse authenticateUser(String username, String password) {
+        // Authenticate user
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(username, password));
+            new UsernamePasswordAuthenticationToken(username, password)
+        );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        String jwt = jwtUtils.generateJwtToken(userDetails.getUsername());
+        // Generate UNSIGNED JWT (header.payload only)
+        String unsignedJwt = jwtUtils.generateUnsignedJwtToken(authentication);
+        
+        // Sign with threshold signature: header.payload::threshold_signature
+        String signedToken = thresholdTokenService.signToken(unsignedJwt);
 
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles = userDetails.getAuthorities().stream()
-            .map(item -> item.getAuthority())
+            .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toList());
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+        // Generate refresh token
+        String refreshToken = refreshTokenService.createRefreshToken(userDetails.getId())
+            .getToken();
 
-        return new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), 
-                             userDetails.getEmail(), roles, refreshToken.getToken());
+        return new JwtResponse(
+            signedToken,  // Returns: header.payload::threshold_signature
+            userDetails.getId(),
+            userDetails.getUsername(),
+            userDetails.getEmail(),
+            roles,
+            refreshToken
+        );
     }
+
 
     public User registerUser(String username, String email, String password, Set<String> strRoles) {
         if (userRepository.existsByUsername(username)) {
